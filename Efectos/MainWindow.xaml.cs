@@ -99,5 +99,13 @@ namespace Efectos
 
             }
         }
+
+        private void sld_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (delayProvider != null )
+            {
+                delayProvider.offsetTiempoMS = (int)sldDelay.Value;
+            }
+        }
     }
 }

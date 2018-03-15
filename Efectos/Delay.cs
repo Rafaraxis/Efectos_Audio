@@ -11,14 +11,15 @@ namespace Efectos
     {
         private ISampleProvider fuente;
 
-        int offsetTiempoMS;
+      public  int offsetTiempoMS;
 
-        List<float>muestras
+        List<float> muestras = new List<float>();
 
         public Delay(ISampleProvider fuente)
         {
             this.fuente = fuente;
-            offsetTiempoMS = 1000; 
+            offsetTiempoMS = 500;
+            //50ms - 5000
         }
 
         public WaveFormat WaveFormat
@@ -29,31 +30,32 @@ namespace Efectos
             }
         }
 
-        //Offset es el numero de muestras leidas
+
+        //Offset es el numero de muestras leídas hasta ahorita
         public int Read(float[] buffer, int offset, int count)
         {
-
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                muestras.Add(buffer[i]);
-            }
-
             var read = fuente.Read(buffer, offset, count);
-            float tiempoTranscurrido = (float)muestras.Count / (float)fuente.WaveFormat.SampleRate;
+            float tiempoTranscurrido =
+           (float)muestras.Count / (float)fuente.WaveFormat.SampleRate;
+            int muestrasTranscrurridas = muestras.Count;
             float tiempoTranscurridoMS = tiempoTranscurrido * 1000;
-            int numeroMuestrasOffsetTiempo = (int)(((float)offsetTiempoMS / 1000.0f)* (float)fuente.WaveFormat.SampleRate);
-           
-               if(tiempoTranscurridoMS > offsetTiempoMS)
-                {
-                    for (int i = 0; i < read; i++)
-                    {
-                    buffer[offset + i] += muestras[muestras.Count + i - numeroMuestrasOffsetTiempo];
-                    //Console.WriteLine("Actual: " + (offset + i));
-                    }
-                }
-                
-            
+            int numMuestrasOffsetTiempo = (int)
+                (((float)offsetTiempoMS / 1000.0f) * (float)fuente.WaveFormat.SampleRate);
 
+          
+            
+                for (int i = 0; i < read; i++)
+                {
+                    muestras.Add(buffer[i]);
+                }
+            
+            if (tiempoTranscurridoMS > offsetTiempoMS)
+            {
+                for (int i = 0; i < read; i++)
+                {
+                    buffer[i] += muestras[muestras.Count + i - numMuestrasOffsetTiempo];
+                }
+            }
             return read;
         }
     }
